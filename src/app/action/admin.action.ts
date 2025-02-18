@@ -94,7 +94,7 @@ export const adminLogin = async (
       path: '/', // Specify the path to ensure the cookie is available across the app
       sameSite: 'strict', // SameSite option (set to 'Strict' to restrict cross-site request)
       secure: process.env.NODE_ENV === 'production', // Secure cookie for production only
-      domain: process.env.NODE_ENV === 'production' ? "spardha-25.vercel.app" : undefined, // Set domain for production only
+      domain: process.env.NODE_ENV === 'production' ? "spardha-25-admin.vercel.app" : undefined, // Set domain for production only
     })
     return {
       success: true,
