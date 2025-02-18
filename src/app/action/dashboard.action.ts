@@ -19,8 +19,9 @@ export const dashboardData = async () => {
       totalPayment: 0,
     };
 
-    // Fetch all teams and events
+
     const teams = await TeamModel.find({ isDeleted: false });
+   
     const events = await eventModel.find({});
     const timeSeriesData = await TeamModel.aggregate([
       {

@@ -17,6 +17,17 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    if (team.isDeleted) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "team was deleted",
+        },
+        { status: 400 }
+      );
+    }
+
     if (team.status == status) {
       return NextResponse.json(
         {

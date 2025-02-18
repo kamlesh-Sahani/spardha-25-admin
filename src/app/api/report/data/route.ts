@@ -6,10 +6,9 @@ export async function GET() {
     await dbConnect();
     try {
         // Fetch distinct college names
-        const colleges = await TeamModel.find({}).distinct("college");
+        const colleges = await TeamModel.find({isDeleted:false}).distinct("college");
         // Fetch distinct event names
-        const events = await TeamModel.find({}).distinct("event");
-
+        const events = await TeamModel.find({isDeleted:false}).distinct("event");
         return NextResponse.json({
             message: "Data retrieved successfully",
             success: true,

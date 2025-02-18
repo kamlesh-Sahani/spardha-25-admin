@@ -63,6 +63,7 @@ export default function Dashboard() {
       setLoading(true);
       try {
         const res = await dashboardData();
+
         setDashboardStats(JSON.parse(res.data!));
         setTimeSeriesData(JSON.parse(res.timeSeriesData!));
       } catch (error) {

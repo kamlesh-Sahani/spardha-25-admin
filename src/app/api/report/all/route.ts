@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 export async function GET(){
     try {
         await dbConnect()
-        const teams = await TeamModel.find({});
+        const teams = await TeamModel.find({isDeleted:false});
         return NextResponse.json({
             message:"team get ",
             teams
