@@ -42,7 +42,6 @@ export const adminLogin = async (
     if (ip === "unknown") {
       return { success: false, message: "Unable to identify IP address." };
     }
-
     // Check rate limit
     const requestCount = Number(rateLimitCache.get(ip)) || 0;
 
