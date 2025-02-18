@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Navbar from "@/components/Navbar";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import Footer from "@/components/Footer";
@@ -34,7 +33,6 @@ export default function RootLayout({
           src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY}`}
         />
         <div>
-          <Navbar />
           {children}
           <Footer />
         </div>
