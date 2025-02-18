@@ -118,7 +118,7 @@ export default function AdminSidebar() {
       {/* Sidebar Content */}
       {showSidebar && (
         <div
-          className={`bg-[#065B83] text-black xl:w-80 max-xl:w-[350px] fixed top-0 left-0 z-[100] flex flex-col xl:relative p-5 h-[80vh] max-xl:h-[100vh] `}
+          className={`bg-[#065B83] text-black xl:w-80 max-xl:w-[350px] fixed top-0 left-0 z-[100] flex flex-col xl:relative p-5 h-[100vh] max-xl:h-[100vh] `}
         >
           {/* Sidebar Header */}
           <div className="flex gap-5 items-center justify-between mb-7">

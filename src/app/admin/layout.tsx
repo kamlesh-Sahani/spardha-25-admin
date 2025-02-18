@@ -4,7 +4,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex h-full">
       <AdminSidebar />
-      <div className="flex-1 h-[80vh] max-xl:h-[100vh]  overflow-y-auto bg-[#F3F4F6]">
+      <div className="flex-1 h-[100vh] max-xl:h-[100vh] pt-10 overflow-y-auto bg-[#F3F4F6]">
         {children}
       </div>
     </div>
