@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { LRUCache } from "lru-cache";
 import { headers } from "next/headers";
 import { verifyToken } from "@/utils/captcha.util";
+import isAdmin from "@/utils/isAdmin.util";
 
 // Configure the LRU cache (Max 10 requests per IP in 1 hour)
 const rateLimitCache = new LRUCache({
@@ -52,14 +53,14 @@ export const adminLogin = async (
       };
     }
     rateLimitCache.set(ip, requestCount + 1);
-    // const captchaData = await verifyToken(captchaToken);
+    const captchaData = await verifyToken(captchaToken);
 
-    // if (!captchaData.success) {
-    //   return {
-    //     success: false,
-    //     message: captchaData.error_codes || "captcha failed",
-    //   };
-    // }
+    if (!captchaData.success) {
+      return {
+        success: false,
+        message: captchaData.error_codes || "captcha failed",
+      };
+    }
     // Find admin by email
     const admin = await adminModel.findOne({ email }).select("+password");
     if (!admin) {
@@ -91,11 +92,14 @@ export const adminLogin = async (
     cookieStore.set("auth-token", token, {
       httpOnly: true, // Prevents client-side access
       maxAge: 60 * 60 * 60, // 30 minutes
-      path: '/', // Specify the path to ensure the cookie is available across the app
-      sameSite: 'strict', // SameSite option (set to 'Strict' to restrict cross-site request)
-      secure: process.env.NODE_ENV === 'production', // Secure cookie for production only
-      domain: process.env.NODE_ENV === 'production' ? "spardha-25-admin.vercel.app" : undefined, // Set domain for production only
-    })
+      path: "/", // Specify the path to ensure the cookie is available across the app
+      sameSite: "strict", // SameSite option (set to 'Strict' to restrict cross-site request)
+      secure: process.env.NODE_ENV === "production", // Secure cookie for production only
+      domain:
+        process.env.NODE_ENV === "production"
+          ? "spardha-25-admin.vercel.app"
+          : undefined, // Set domain for production only
+    });
     return {
       success: true,
       message: "Admin login successfully",
@@ -120,31 +124,13 @@ export const adminRegister = async (
         success: false,
       };
     }
-    const cookieStore = await cookies();
-    const token = cookieStore.get("auth-token")?.value;
-    if (!token) {
-      return {
-        success: false,
-        message: "unauthenticated admin",
-      };
+    const checkAdmin = await isAdmin();
+    if(!checkAdmin.success){
+      return{
+        success:false,
+        message:checkAdmin.message
+      }
     }
-
-    const decoded:any = jwt.verify(token, process.env.JWT_SECRET!);
-    if (!decoded) {
-      return {
-        success: false,
-        message: "unauthenticated admin",
-      };
-    }
-
-    if(decoded.role!=="admin"){
-      return {
-        success: false,
-        message: "unauthenticated admin",
-      };
-    }
-
-
     const isExist = await adminModel.findOne({ email: mail });
     if (isExist) {
       return {
@@ -196,6 +182,13 @@ export const allAdmin = async () => {
 export const adminStatus = async (adminId: string, status: boolean) => {
   try {
     await dbConnect();
+    const checkAdmin = await isAdmin();
+    if(!checkAdmin.success){
+      return{
+        success:false,
+        message:checkAdmin.message
+      }
+    }
     const admin = await adminModel.findById(adminId);
     if (!admin) {
       return {
@@ -226,6 +219,14 @@ export const adminStatus = async (adminId: string, status: boolean) => {
 export const adminRole = async (adminId: string, role: "user" | "admin") => {
   try {
     await dbConnect();
+    const checkAdmin = await isAdmin();
+    if(!checkAdmin.success){
+      return{
+        success:false,
+        message:checkAdmin.message
+      }
+    }
+    
     const admin = await adminModel.findById(adminId);
     if (!admin) {
       return {
@@ -286,8 +287,6 @@ export const adminProfile = async () => {
       return { success: false, message: "Invalid token or token expired" };
     }
 
-
-  
     return {
       success: true,
       message: "Admin found successfully",

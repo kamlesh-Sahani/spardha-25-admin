@@ -31,7 +31,9 @@ import {
 } from "@/components/ui/dialog";
 import Loader from "@/components/Loader";
 import { default as ReactSelect } from "react-select"; // ✅ Correct aliasing
-import { deleteTeam } from "@/app/action/team.action";
+import { DataForDownload, deleteTeam } from "@/app/action/team.action";
+import { adminProfile } from "@/app/action/admin.action";
+import { exportToExcel } from "@/utils/exportToExcel.util";
 
 // Define type
 interface Player {
@@ -80,7 +82,7 @@ export default function AdminReportPage() {
   const [collegeData, setCollegeData] = useState<string[]>();
   const [eventData, setEventData] = useState<string[]>();
   const [statusLoading,setStatusLoading]= useState<boolean>(false);
-  const [deleteDialog,setDeleteDailog]=useState<boolean>(false);
+  const [admin,setAdmin] = useState<{role:"admin" | "user",active:boolean,email:string}>()
 
 
   // New state for handling approval/rejection reason
@@ -92,6 +94,7 @@ export default function AdminReportPage() {
   // Add new state for large image view
 const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 const [selectedImage, setSelectedImage] = useState<string | null>(null);
+const [downloadLoading,setDownloadLoading]=useState<boolean>(false);
 
 // Event handler to open the image modal
 const openImageModal = (imageSrc: string) => {
@@ -218,10 +221,35 @@ const closeImageModal = () => {
     })();
   }, []);
 
+  useEffect(()=>{
+    (async function(){
+      try{
+        const res = await adminProfile();
+        setAdmin(JSON.parse(res.admin!));
+      }catch(error:any){
+        console.log(error)
+      }
+    })()
+  },[])
+  const DownloadExcelData = async()=>{
+    try{
+      setDownloadLoading(true);
+      const res = await DataForDownload();
+      exportToExcel(JSON.parse(res.data!));
+    }catch(error:any){
+      console.log(error);
+    }finally{
+      setDownloadLoading(false);
+    }
+  }
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="flex items-center justify-between flex-wrap">
       <h1 className="text-2xl font-bold mb-6">Team Registrations Report</h1>
 
+        <button onClick={DownloadExcelData} className="px-3 py-2 rounded bg-blue-500 font-semibold text-white border-none">{downloadLoading? "Downloading...":"Download Data"}</button>
+      </div>
+     
       {/* Filters */}
       <div className="mb-6 flex flex-wrap gap-4">
         {collegeData && (
@@ -368,7 +396,9 @@ const closeImageModal = () => {
                         >
                           View Payment
                         </Button>
-                        <Button
+                        {
+                        admin && admin.active && admin?.role==="admin" && <>
+                          <Button
                           onClick={() => openStatusDialog(team._id, "approved")}
                           className="bg-green-800"
                           
@@ -388,6 +418,9 @@ const closeImageModal = () => {
                         >
                          <Trash2 />
                         </Button>
+                        </>
+                        }
+                      
                       </TableCell>
                     </TableRow>
                   ))}
