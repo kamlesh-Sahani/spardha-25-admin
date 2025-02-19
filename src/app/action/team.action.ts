@@ -578,11 +578,16 @@ export const getEventDetail = async () => {
     }
 
     // Convert Set to Array
-    const result = Object.values(eventDetails).map(event => ({
+    let result = Object.values(eventDetails).map(event => ({
       event: event.event,
       registration: event.registration,
       totalCollege: Array.from(event.totalCollege).length,
     }));
+
+     // Sort the result by event name
+     result = result.sort((a, b) => a.event.localeCompare(b.event));
+
+
 
     return {
       success: true,
