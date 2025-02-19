@@ -101,7 +101,7 @@ const Footer = () => {
                 </Link>
               </div>
               <div className="flex gap-4 justify-start items-center">
-                <p className="text-md">Kamlesh Sahani</p>
+                <p className="text-md">Kamlesh Kumar</p>
                 <Link href={"https://github.com/kamlesh-Sahani"} target="_blank">
                   <Github size={16} />
                 </Link>
