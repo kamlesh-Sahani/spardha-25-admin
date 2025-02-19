@@ -188,7 +188,7 @@ export default function AdminSidebar() {
                     }`}
                   >
                     <Gamepad />
-                    <p>visualize Events</p>
+                    <p>Visualize Events</p>
                   </div>
                 </Link>
                 <Link href="/admin/events">
