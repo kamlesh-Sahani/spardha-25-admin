@@ -394,7 +394,7 @@ export const deleteTeam = async (_id: string) => {
     if (!checkAdmin.success) {
       return {
         success: false,
-        message: checkAdmin.message,
+        message: checkAdmin.message || "unauthenticated",
       };
     }
     const team = await TeamModel.findById(_id);
@@ -405,6 +405,7 @@ export const deleteTeam = async (_id: string) => {
       };
     }
     team.isDeleted = true;
+    await team.save({validateBeforeSave:true});
     return {
       message: `successfuly Team ${team.teamID} Deleted`,
       success: true,
