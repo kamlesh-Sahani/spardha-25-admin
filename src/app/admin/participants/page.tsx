@@ -481,14 +481,14 @@ const closeImageModal = () => {
 
 
       <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
-  <DialogContent className="max-w-[80vw] max-sm:max-w-[90vw]  rounded z-[110]">
+  <DialogContent className="max-w-[80vw] max-sm:max-w-[90vw] overflow-auto rounded z-[110]">
     <DialogHeader>
-      <DialogTitle>Player ID Card</DialogTitle>
+      <DialogTitle>Large view</DialogTitle>
     </DialogHeader>
     <img
       src={selectedImage || ""}
       alt="Large View"
-      className="w-full h-[70vh] object-contain rounded"
+      className="w-full h-[100vh] object-contain rounded"
     />
     <div className="flex justify-end gap-2 mt-4">
       <Button variant="outline" onClick={closeImageModal}>Close</Button>
