@@ -365,9 +365,6 @@ const closeImageModal = () => {
                           String(new Date(team.createdAt).toLocaleTimeString())+ ")"
                           : "N/A"}
                       </TableCell>
-                   
-
-
                       <TableCell>{team.event}</TableCell>
                       <TableCell>{team.college}</TableCell>
                       <TableCell>
@@ -481,14 +478,14 @@ const closeImageModal = () => {
 
 
       <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
-  <DialogContent className="max-w-[80vw] max-sm:max-w-[90vw] overflow-auto rounded z-[110]">
+  <DialogContent className="max-w-[80vw] max-sm:max-w-[90vw] max-h-[85vh] overflow-auto rounded z-[110]">
     <DialogHeader>
       <DialogTitle>Large view</DialogTitle>
     </DialogHeader>
     <img
       src={selectedImage || ""}
       alt="Large View"
-      className="w-full h-[100vh] object-contain rounded"
+      className="w-full h-[800px] object-contain rounded"
     />
     <div className="flex justify-end gap-2 mt-4">
       <Button variant="outline" onClick={closeImageModal}>Close</Button>
@@ -498,7 +495,7 @@ const closeImageModal = () => {
 
 
       <Dialog open={isPlayerModalOpen} onOpenChange={setIsPlayerModalOpen}>
-        <DialogContent className="max-w-[70vw] max-sm:max-w-[90vw] rounded z-[110]">
+        <DialogContent className="max-w-[70vw] max-sm:max-w-[80vw] max-h-[86vh] overflow-x-auto rounded z-[110]">
           <DialogHeader>
             <DialogTitle>Player Details ({selectedTeam?.teamID})</DialogTitle>
             <DialogDescription>
