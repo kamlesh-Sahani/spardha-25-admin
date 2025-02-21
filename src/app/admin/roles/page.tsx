@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getCaptchaToken } from "@/utils/captcha.util";
 
 const RolesPage = () => {
   const [admins, setAdmins] = useState<
@@ -104,7 +105,8 @@ const RolesPage = () => {
     const password = newUser.password;
     const role = newUser.role as "admin"|"user";
 try{
-  const res = await adminRegister(password,mail,role);
+  const captchaToken = await  getCaptchaToken()
+  const res = await adminRegister(password,mail,role,captchaToken!);
   if(res.success){
     toast.success(res.message);
   }else{

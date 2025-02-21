@@ -531,7 +531,6 @@ export const DataForDownload = async () => {
 
       for (let j = 0; j < teamData.players.length; j++) {
         const player = teamData.players[j];
-        console.log(player,"player")
         formattedDataArr.push({
           teamID: teamData.teamID,
           eventName: teamData.event,
@@ -601,3 +600,25 @@ export const getEventDetail = async () => {
     };
   }
 };
+
+
+export const  teamEdit= async(teamData:any)=>{
+  try{
+    await dbConnect();
+    const checkAdmin = await isAdmin();
+    if (!checkAdmin.success) {
+      return {
+        success: false,
+        message: checkAdmin.message || "unauthenticated",
+      };
+    }
+
+
+    
+  }catch(error:any){
+    return {
+      success: false,
+      message: error.message || "Internal error",
+    };
+  }
+}

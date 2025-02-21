@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import {cookies} from "next/headers"
 export async function middleware(request: NextRequest) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("auth-token")?.value;
+  const token = cookieStore.get("world-token")?.value;
   const protectedRoutes = ["/admin", "/api/report"];
   if (
     protectedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))

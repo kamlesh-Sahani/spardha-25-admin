@@ -79,16 +79,12 @@ export const adminLogin = async (
     }
 
     // Generate JWT Token
-    const token = jwt.sign(
-      { email: admin.email, role: "admin", active: admin.active },
-      jwtSecret,
-      {
-        expiresIn: "1h",
-      }
-    );
+    const token = jwt.sign({ _id: admin._id }, jwtSecret, {
+      expiresIn: "1h",
+    });
     const cookieStore = await cookies();
     // Set the token in a secure HttpOnly cookie
-    cookieStore.set("auth-token", token, {
+    cookieStore.set("world-token", token, {
       httpOnly: true, // Prevents client-side access
       maxAge: 60 * 60 * 60, // 30 minutes
       path: "/", // Specify the path to ensure the cookie is available across the app
@@ -111,9 +107,10 @@ export const adminLogin = async (
   }
 };
 export const adminRegister = async (
-  password?: string,
-  mail?: string,
-  role?: "admin" | "user"
+  password: string,
+  mail: string,
+  role: "admin" | "user",
+  captchaToken: string
 ) => {
   try {
     await dbConnect();
@@ -123,12 +120,26 @@ export const adminRegister = async (
         success: false,
       };
     }
+
+    if (!captchaToken) {
+      return {
+        success: false,
+        message: "captcha failed",
+      };
+    }
+    const captchaData = await verifyToken(captchaToken);
+    if (!captchaData.success) {
+      return {
+        success: false,
+        message: captchaData.error_codes || "captcha failed",
+      };
+    }
     const checkAdmin = await isAdmin();
-    if(!checkAdmin.success){
-      return{
-        success:false,
-        message:checkAdmin.message
-      }
+    if (!checkAdmin.success) {
+      return {
+        success: false,
+        message: checkAdmin.message,
+      };
     }
     const isExist = await adminModel.findOne({ email: mail });
     if (isExist) {
@@ -165,6 +176,14 @@ export const adminRegister = async (
 export const allAdmin = async () => {
   try {
     await dbConnect();
+    const checkAdmin = await isAdmin();
+    if (!checkAdmin.success) {
+      return {
+        success: false,
+        message: checkAdmin.message,
+      };
+    }
+
     const admins = await adminModel.find({});
     return {
       message: "successfuly find",
@@ -182,11 +201,11 @@ export const adminStatus = async (adminId: string, status: boolean) => {
   try {
     await dbConnect();
     const checkAdmin = await isAdmin();
-    if(!checkAdmin.success){
-      return{
-        success:false,
-        message:checkAdmin.message
-      }
+    if (!checkAdmin.success) {
+      return {
+        success: false,
+        message: checkAdmin.message,
+      };
     }
     const admin = await adminModel.findById(adminId);
     if (!admin) {
@@ -219,13 +238,13 @@ export const adminRole = async (adminId: string, role: "user" | "admin") => {
   try {
     await dbConnect();
     const checkAdmin = await isAdmin();
-    if(!checkAdmin.success){
-      return{
-        success:false,
-        message:checkAdmin.message
-      }
+    if (!checkAdmin.success) {
+      return {
+        success: false,
+        message: checkAdmin.message,
+      };
     }
-    
+
     const admin = await adminModel.findById(adminId);
     if (!admin) {
       return {
@@ -256,7 +275,7 @@ export const adminRole = async (adminId: string, role: "user" | "admin") => {
 export const adminLogout = async () => {
   try {
     const cookieStore = await cookies();
-    cookieStore.delete("auth-token");
+    cookieStore.delete("world-token");
     return {
       success: true,
       message: "Admin Logout successfully",
@@ -269,31 +288,49 @@ export const adminLogout = async () => {
   }
 };
 
-export const adminProfile = async () => {
+export const adminProfile = async (captchaToken: string) => {
   try {
+    await dbConnect();
+    if (!captchaToken) {
+      return {
+        success: false,
+        message: "captcha failed",
+      };
+    }
+    const captchaData = await verifyToken(captchaToken);
+    if (!captchaData.success) {
+      return {
+        success: false,
+        message: captchaData.error_codes || "captcha failed",
+      };
+    }
     const cookieStore = await cookies();
-    const token = cookieStore.get("auth-token")?.value;
+    const token = cookieStore.get("world-token")?.value;
     if (!token) {
-      cookieStore.delete("auth-token");
+      cookieStore.delete("world-token");
       return {
         success: false,
         message: "unauthenticated user",
       };
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    if (!decoded || typeof decoded !== "object" || !decoded.email) {
-      cookieStore.delete("auth-token");
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    if (!decoded || !decoded._id) {
+      cookieStore.delete("world-token");
       return { success: false, message: "Invalid token or token expired" };
     }
-
+    const admin = await adminModel.findById(decoded._id);
+    if (!admin || !admin.active || !admin.email) {
+      cookieStore.delete("world-token");
+      return { success: false, message: "Invalid token or admin" };
+    }
     return {
       success: true,
       message: "Admin found successfully",
-      admin: JSON.stringify(decoded),
+      admin: JSON.stringify(admin),
     };
   } catch (error: any) {
     const cookieStore = await cookies();
-    cookieStore.delete("auth-token");
+    cookieStore.delete("world-token");
     return {
       success: false,
       message: error.message || "internal error",

@@ -15,6 +15,7 @@ import { adminLogout } from "@/app/action/admin.action";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { adminProfile } from "@/app/action/admin.action";
+import { getCaptchaToken } from "@/utils/captcha.util";
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -59,7 +60,8 @@ export default function AdminSidebar() {
     (async function () {
       try {
         setLoading(true);
-        const res = await adminProfile();
+        const captchaToken = await  getCaptchaToken()
+        const res = await adminProfile(captchaToken!);
         if (res.success) {
           setAdmin(JSON.parse(res.admin!));
         } else {
@@ -91,7 +93,7 @@ export default function AdminSidebar() {
       router.push("/login");
     } else {
       // If admin is active, check role-based redirection
-      if (admin.role === "user") {
+      if (admin.role !== "admin") {
         if (pathname === "/admin/colleges" || pathname === "/admin/roles") {
           router.push("/admin/dashboard");
         }

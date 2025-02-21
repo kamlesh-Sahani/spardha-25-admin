@@ -34,6 +34,7 @@ import { default as ReactSelect } from "react-select"; // ✅ Correct aliasing
 import { DataForDownload, deleteTeam } from "@/app/action/team.action";
 import { adminProfile } from "@/app/action/admin.action";
 import { exportToExcel } from "@/utils/exportToExcel.util";
+import { getCaptchaToken } from "@/utils/captcha.util";
 
 // Define type
 interface Player {
@@ -224,7 +225,8 @@ const closeImageModal = () => {
   useEffect(()=>{
     (async function(){
       try{
-        const res = await adminProfile();
+        const captchaToken = await  getCaptchaToken()
+        const res = await adminProfile(captchaToken!);
         setAdmin(JSON.parse(res.admin!));
       }catch(error:any){
         console.log(error)
