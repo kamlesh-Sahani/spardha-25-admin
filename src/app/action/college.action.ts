@@ -61,7 +61,7 @@ export const allColleges = async () => {
         message: checkAdmin.message,
       };
     }
-    const colleges = await collegeModel.find({});
+    const colleges = await collegeModel.find({}).sort({ name: 1 });
     return {
       colleges: JSON.stringify(colleges),
       success: true,
