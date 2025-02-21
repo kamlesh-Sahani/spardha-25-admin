@@ -52,14 +52,14 @@ export const adminLogin = async (
       };
     }
     rateLimitCache.set(ip, requestCount + 1);
-    const captchaData = await verifyToken(captchaToken);
+    // const captchaData = await verifyToken(captchaToken);
 
-    if (!captchaData.success) {
-      return {
-        success: false,
-        message: captchaData.error_codes || "captcha failed",
-      };
-    }
+    // if (!captchaData.success) {
+    //   return {
+    //     success: false,
+    //     message: captchaData.error_codes || "captcha failed",
+    //   };
+    // }
     // Find admin by email
     const admin = await adminModel.findOne({ email }).select("+password");
     if (!admin) {
@@ -92,7 +92,7 @@ export const adminLogin = async (
       secure: process.env.NODE_ENV === "production", // Secure cookie for production only
       domain:
         process.env.NODE_ENV === "production"
-          ? "spardha-25-admin.vercel.app"
+          ? "admin2025spardha.vercel.app"
           : undefined, // Set domain for production only
     });
     return {
@@ -176,14 +176,13 @@ export const adminRegister = async (
 export const allAdmin = async () => {
   try {
     await dbConnect();
-    const checkAdmin = await isAdmin();
+     const checkAdmin = await isAdmin();
     if (!checkAdmin.success) {
       return {
         success: false,
         message: checkAdmin.message,
       };
     }
-
     const admins = await adminModel.find({});
     return {
       message: "successfuly find",
