@@ -21,7 +21,6 @@ const AdminLogin: React.FC = () => {
     try {
       const token =  await getCaptchaToken()
       const res = await adminLogin(passkey,mail,token);
-      console.log(res,"res");
       if(!res.success){
         setError(res.message);
       }else{
