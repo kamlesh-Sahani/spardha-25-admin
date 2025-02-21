@@ -289,6 +289,13 @@ export const markAttendance = async (teamID: number, password: string) => {
         message: "please fill the all fields",
       };
     }
+    const checkAdmin = await isAdmin();
+    if (!checkAdmin.success) {
+      return {
+        success: false,
+        message: checkAdmin.message,
+      };
+    }
 
     const team = await TeamModel.findOne({ teamID });
     if (!team) {
@@ -340,6 +347,13 @@ export const markAttendance = async (teamID: number, password: string) => {
 export const attendTeams = async () => {
   try {
     await dbConnect();
+    const checkAdmin = await isAdmin();
+    if (!checkAdmin.success) {
+      return {
+        success: false,
+        message: checkAdmin.message,
+      };
+    }
     const teams = await TeamModel.find({ reported: true }).select(
       "teamID event college reported"
     );

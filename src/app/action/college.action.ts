@@ -1,10 +1,18 @@
 "use server";
 import collegeModel, { CollegeType } from "@/models/college.model";
 import dbConnect from "@/utils/dbConnect.util";
+import isAdmin from "@/utils/isAdmin.util";
 
 export const newCollege = async (collegeData: CollegeType) => {
   try {
     await dbConnect();
+    const checkAdmin = await isAdmin();
+    if (!checkAdmin.success) {
+      return {
+        success: false,
+        message: checkAdmin.message,
+      };
+    }
     const { name } = collegeData;
 
     if (!name) {
@@ -46,6 +54,13 @@ export const newCollege = async (collegeData: CollegeType) => {
 export const allColleges = async () => {
   try {
     await dbConnect();
+    const checkAdmin = await isAdmin();
+    if (!checkAdmin.success) {
+      return {
+        success: false,
+        message: checkAdmin.message,
+      };
+    }
     const colleges = await collegeModel.find({});
     return {
       colleges: JSON.stringify(colleges),
@@ -74,6 +89,13 @@ export const updateCollege = async ({
         success: false,
       };
     }
+    const checkAdmin = await isAdmin();
+    if (!checkAdmin.success) {
+      return {
+        success: false,
+        message: checkAdmin.message,
+      };
+    }
 
     const college = await collegeModel.findById(_id);
     if (!college) {
@@ -85,7 +107,6 @@ export const updateCollege = async ({
 
     college.name = name;
     await college.save({validateBeforeSave:true});
-
     return {
       message: "College name updated",
       success: true,
