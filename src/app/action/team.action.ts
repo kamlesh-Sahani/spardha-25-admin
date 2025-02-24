@@ -576,7 +576,10 @@ export const getEventDetail = async () => {
     const teams = await TeamModel.find({ isDeleted: false });
 
     // Grouping data by event
-    const eventDetails: Record<string, { event: string; registration: number; totalCollege: any }> = {};
+    const eventDetails: Record<string, { event: string; registration: number; totalCollege: any;
+dbit:any;
+btts:any;
+     }> = {};
 
     for (const team of teams) {
       if (!eventDetails[team.event]) {
@@ -584,11 +587,21 @@ export const getEventDetail = async () => {
           event: team.event,
           registration: 0,
           totalCollege: new Set<string>(), // Using Set to avoid duplicate colleges
+          btts: new Set<string>(),
+          dbit: new Set<string>(),
         };
       }
 
       eventDetails[team.event].registration += 1;
       eventDetails[team.event].totalCollege.add(team.college);
+      if(team.college=="Don Bosco Institute of Technology, New Delhi"){
+        eventDetails[team.event].dbit.add(team.college);
+      }
+      if(team.college=="Bosco Technical Traning Society, New Delhi"){
+        eventDetails[team.event].btts.add(team.college);
+      }
+     
+      
     }
 
     // Convert Set to Array
@@ -596,12 +609,12 @@ export const getEventDetail = async () => {
       event: event.event,
       registration: event.registration,
       totalCollege: Array.from(event.totalCollege).length,
+      dbit: Array.from(event.totalCollege).length,
+      btts: Array.from(event.totalCollege).length,
     }));
 
      // Sort the result by event name
      result = result.sort((a, b) => a.event.localeCompare(b.event));
-
-
 
     return {
       success: true,
