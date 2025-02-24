@@ -69,6 +69,7 @@ const EventTable = () => {
                     <TableHead>Teams Registered</TableHead>
                     <TableHead>DBIT</TableHead>
                     <TableHead>Others</TableHead>
+                    <TableHead>Total Colleges</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -81,6 +82,7 @@ const EventTable = () => {
                         <TableCell>{event.registration}</TableCell>
                         <TableCell>{event.dbit}</TableCell>
                         <TableCell>{event.other}</TableCell>
+                        <TableCell>{event.totalCollege}</TableCell>
                       </TableRow>
                     ))
                   ) : (
