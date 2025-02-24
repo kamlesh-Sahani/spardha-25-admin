@@ -419,7 +419,7 @@ export const deleteTeam = async (_id: string) => {
       };
     }
     team.isDeleted = true;
-    await team.save();
+  await team.save({validateBeforeSave:false});
     return {
       message: `successfuly Team ${team.teamID} Deleted`,
       success: true,
