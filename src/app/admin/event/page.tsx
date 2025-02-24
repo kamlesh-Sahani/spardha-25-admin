@@ -15,7 +15,7 @@ import Loader from "@/components/Loader";
 
 const EventTable = () => {
   const [eventData, setEventData] = useState<
-    { event: string; registration: number; totalCollege: number;btts:number;dbit:number }[]
+    { event: string; registration: number; totalCollege: number;other:number;dbit:number }[]
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [filterText, setFilterText] = useState<string>("");
@@ -33,6 +33,8 @@ const EventTable = () => {
       }
     })();
   }, []);
+
+  console.log(setEventData)
 
   // Filter events based on user input
   const filteredEvents = eventData.filter((event) =>
@@ -78,8 +80,7 @@ const EventTable = () => {
                         </TableCell>
                         <TableCell>{event.registration}</TableCell>
                         <TableCell>{event.dbit}</TableCell>
-                        <TableCell>{event.totalCollege - (event.dbit + event.btts)}</TableCell>
-                
+                        <TableCell>{event.other}</TableCell>
                       </TableRow>
                     ))
                   ) : (
