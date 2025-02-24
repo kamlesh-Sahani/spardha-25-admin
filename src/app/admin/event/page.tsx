@@ -15,7 +15,7 @@ import Loader from "@/components/Loader";
 
 const EventTable = () => {
   const [eventData, setEventData] = useState<
-    { event: string; registration: number; totalCollege: number;other:number;dbit:number }[]
+    { event: string; registration: number; totalCollege: number;other:number;dbit:number,btts:number }[]
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [filterText, setFilterText] = useState<string>("");
@@ -68,6 +68,7 @@ const EventTable = () => {
                     <TableHead>Event Name</TableHead>
                     <TableHead>Teams Registered</TableHead>
                     <TableHead>DBIT</TableHead>
+                    <TableHead>BTTS</TableHead>
                     <TableHead>Others</TableHead>
                     <TableHead>Total Colleges</TableHead>
                   </TableRow>
@@ -81,6 +82,7 @@ const EventTable = () => {
                         </TableCell>
                         <TableCell>{event.registration}</TableCell>
                         <TableCell>{event.dbit}</TableCell>
+                        <TableCell>{event.btts}</TableCell>
                         <TableCell>{event.other}</TableCell>
                         <TableCell>{event.totalCollege}</TableCell>
                       </TableRow>

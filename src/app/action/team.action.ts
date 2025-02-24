@@ -579,6 +579,7 @@ export const getEventDetail = async () => {
     const eventDetails: Record<string, { event: string; registration: number; totalCollege: any;
 dbit:number;
 other?:number;
+btts:number;
      }> = {};
 
     for (const team of teams) {
@@ -588,13 +589,17 @@ other?:number;
           registration: 0,
           totalCollege: new Set<string>(), // Using Set to avoid duplicate colleges
           dbit: 0,
+          btts: 0,
         };
       }
 
       eventDetails[team.event].registration += 1;
       eventDetails[team.event].totalCollege.add(team.college);
-      if(team.college==="Don Bosco Institute of Technology, New Delhi" || team.college==="Bosco Technical Traning Society, New Delhi"){
+      if(team.college==="Don Bosco Institute of Technology, New Delhi"){
         eventDetails[team.event].dbit += 1;
+      }
+      if(team.college==="Bosco Technical Traning Society, New Delhi"){
+        eventDetails[team.event].btts += 1;
       }
     }
 
@@ -604,7 +609,8 @@ other?:number;
       registration: event.registration,
       totalCollege: Array.from(event.totalCollege).length,
       dbit: event.dbit,
-      other: event.registration - event.dbit
+      btts: event.btts,
+      other: event.registration - (event.dbit + event.btts)
     }));
 
      // Sort the result by event name
