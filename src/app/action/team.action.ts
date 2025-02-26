@@ -548,7 +548,7 @@ export const DataForDownload = async () => {
         formattedDataArr.push({
           teamID: teamData.teamID,
           players: teamData.players,
-          reported: teamData.reported,
+          status: teamData.status,
           eventName: teamData.event,
           college: teamData.college,
           enrollment: player.enrollment,
