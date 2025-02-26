@@ -237,6 +237,7 @@ const closeImageModal = () => {
     try{
       setDownloadLoading(true);
       const res = await DataForDownload();
+      console.log(res)
       exportToExcel(JSON.parse(res.data!));
     }catch(error:any){
       console.log(error);

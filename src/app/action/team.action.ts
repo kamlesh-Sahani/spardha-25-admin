@@ -419,7 +419,7 @@ export const deleteTeam = async (_id: string) => {
       };
     }
     team.isDeleted = true;
-  await team.save({validateBeforeSave:false});
+    await team.save({ validateBeforeSave: false });
     return {
       message: `successfuly Team ${team.teamID} Deleted`,
       success: true,
@@ -547,6 +547,8 @@ export const DataForDownload = async () => {
         const player = teamData.players[j];
         formattedDataArr.push({
           teamID: teamData.teamID,
+          players: teamData.players,
+          reported: teamData.reported,
           eventName: teamData.event,
           college: teamData.college,
           enrollment: player.enrollment,
@@ -569,18 +571,23 @@ export const DataForDownload = async () => {
   }
 };
 
-
 export const getEventDetail = async () => {
   try {
     await dbConnect();
     const teams = await TeamModel.find({ isDeleted: false });
 
     // Grouping data by event
-    const eventDetails: Record<string, { event: string; registration: number; totalCollege: any;
-dbit:number;
-other?:number;
-btts:number;
-     }> = {};
+    const eventDetails: Record<
+      string,
+      {
+        event: string;
+        registration: number;
+        totalCollege: any;
+        dbit: number;
+        other?: number;
+        btts: number;
+      }
+    > = {};
 
     for (const team of teams) {
       if (!eventDetails[team.event]) {
@@ -595,26 +602,26 @@ btts:number;
 
       eventDetails[team.event].registration += 1;
       eventDetails[team.event].totalCollege.add(team.college);
-      if(team.college==="Don Bosco Institute of Technology, New Delhi"){
+      if (team.college === "Don Bosco Institute of Technology, New Delhi") {
         eventDetails[team.event].dbit += 1;
       }
-      if(team.college==="Bosco Technical Traning Society, New Delhi"){
+      if (team.college === "Bosco Technical Traning Society, New Delhi") {
         eventDetails[team.event].btts += 1;
       }
     }
 
     // Convert Set to Array
-    let result = Object.values(eventDetails).map(event => ({
+    let result = Object.values(eventDetails).map((event) => ({
       event: event.event,
       registration: event.registration,
       totalCollege: Array.from(event.totalCollege).length,
       dbit: event.dbit,
       btts: event.btts,
-      other: event.registration - (event.dbit + event.btts)
+      other: event.registration - (event.dbit + event.btts),
     }));
 
-     // Sort the result by event name
-     result = result.sort((a, b) => a.event.localeCompare(b.event));
+    // Sort the result by event name
+    result = result.sort((a, b) => a.event.localeCompare(b.event));
 
     return {
       success: true,
@@ -628,9 +635,8 @@ btts:number;
   }
 };
 
-
-export const  teamEdit= async(teamData:any)=>{
-  try{
+export const teamEdit = async (teamData: any) => {
+  try {
     await dbConnect();
     const checkAdmin = await isAdmin();
     if (!checkAdmin.success) {
@@ -639,13 +645,10 @@ export const  teamEdit= async(teamData:any)=>{
         message: checkAdmin.message || "unauthenticated",
       };
     }
-
-
-    
-  }catch(error:any){
+  } catch (error: any) {
     return {
       success: false,
       message: error.message || "Internal error",
     };
   }
-}
+};
