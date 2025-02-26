@@ -534,39 +534,71 @@ export const getTeamByTeamID = async (teamID: number, password: string) => {
   }
 };
 
+// export const DataForDownload = async () => {
+//   try {
+//     await dbConnect();
+//     const teams = await TeamModel.find({ isDeleted: false });
+
+//     const formattedDataArr = [] as any;
+//     for (let i = 0; i < teams.length; i++) {
+//       const teamData = teams[i];
+
+//       for (let j = 0; j < teamData.players.length; j++) {
+//         const player = teamData.players[j];
+//         formattedDataArr.push({
+//           teamID: teamData.teamID,
+//           players: teamData.players,
+//           status: teamData.status,
+//           eventName: teamData.event,
+//           college: teamData.college,
+//           enrollment: player.enrollment,
+//           phone: player.mobile,
+//           transactionId: teamData.transactionId,
+//           amount: teamData.amount,
+//         });
+//       }
+//     }
+//     return {
+//       message: "data successfuly find",
+//       success: false,
+//       data: JSON.stringify(formattedDataArr),
+//     };
+//   } catch (error: any) {
+//     return {
+//       success: false,
+//       message: error.message || "internal error",
+//     };
+//   }
+// };
 export const DataForDownload = async () => {
   try {
     await dbConnect();
     const teams = await TeamModel.find({ isDeleted: false });
 
     const formattedDataArr = [] as any;
-    for (let i = 0; i < teams.length; i++) {
-      const teamData = teams[i];
-
-      for (let j = 0; j < teamData.players.length; j++) {
-        const player = teamData.players[j];
+    for (const team of teams) {
+      for (const player of team.players) {
         formattedDataArr.push({
-          teamID: teamData.teamID,
-          players: teamData.players,
-          status: teamData.status,
-          eventName: teamData.event,
-          college: teamData.college,
-          enrollment: player.enrollment,
-          phone: player.mobile,
-          transactionId: teamData.transactionId,
-          amount: teamData.amount,
+          teamID: team.teamID,
+          playerName: player.name, // Only the player's name
+          status: team.status,
+          eventName: team.event,
+          college: team.college,
+          transactionId: team.transactionId,
+          amount: team.amount,
         });
       }
     }
+
     return {
-      message: "data successfuly find",
-      success: false,
+      message: "Data successfully retrieved",
+      success: true,
       data: JSON.stringify(formattedDataArr),
     };
   } catch (error: any) {
     return {
       success: false,
-      message: error.message || "internal error",
+      message: error.message || "Internal error",
     };
   }
 };
