@@ -578,15 +578,17 @@ export const DataForDownload = async () => {
     const formattedDataArr = [] as any;
     for (const team of teams) {
       for (const player of team.players) {
-        formattedDataArr.push({
-          teamID: team.teamID,
-          playerName: player.name, // Only the player's name
-          status: team.status,
-          eventName: team.event,
-          college: team.college,
-          transactionId: team.transactionId,
-          amount: team.amount,
-        });
+        if (player.isCaptain) {  // Only include captain players
+          formattedDataArr.push({
+            teamID: team.teamID,
+            playerName: player.name, // Only captain's name
+            status: team.status,
+            eventName: team.event,
+            college: team.college,
+            transactionId: team.transactionId,
+            amount: team.amount,
+          });
+        }
       }
     }
 
@@ -602,6 +604,7 @@ export const DataForDownload = async () => {
     };
   }
 };
+
 
 export const getEventDetail = async () => {
   try {
