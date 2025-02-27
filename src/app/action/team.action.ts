@@ -584,6 +584,7 @@ export const DataForDownload = async () => {
             playerName: player.name, // Only captain's name
             status: team.status,
             eventName: team.event,
+            phone: player.mobile,
             college: team.college,
             transactionId: team.transactionId,
             amount: team.amount,
