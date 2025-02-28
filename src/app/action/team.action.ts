@@ -608,25 +608,24 @@ export const DataForDownload = async () => {
 export const FullDataForDownload = async () => {
   try {
     await dbConnect();
-    const teams = await TeamModel.find({ isDeleted: false });
+    const teams = await TeamModel.find({ isDeleted: false }).lean(); // Use lean() for better performance
 
-    const formattedDataArr = [];
-    for (const team of teams) {
-      for (const player of team.players) {
-        formattedDataArr.push({
-          teamID: team.teamID,
-          eventName: team.event,
-          college: team.college,
-          playerName: player.name,
-          enrollment: player.enrollment, // Added enrollment
-          isCaptain: player.isCaptain, // Added isCaptain status
-          status: team.status,
-          phone: player.mobile,
-          transactionId: team.transactionId,
-          amount: team.amount,
-        });
-      }
-    }
+    const formattedDataArr = teams.map((team) => ({
+      teamID: team.teamID,
+      eventName: team.event,
+      college: team.college,
+      status: team.status,
+      transactionId: team.transactionId,
+      amount: team.amount,
+
+      // Creating arrays for player details
+      players: team.players.map((player) => ({
+        playerName: player.name,
+        enrollment: player.enrollment,
+        phone: player.mobile,
+        isCaptain: player.isCaptain,
+      })),
+    }));
 
     return {
       message: "Data successfully retrieved",
@@ -634,12 +633,14 @@ export const FullDataForDownload = async () => {
       data: JSON.stringify(formattedDataArr),
     };
   } catch (error: any) {
+    console.error("Error fetching data:", error);
     return {
       success: false,
       message: error.message || "Internal error",
     };
   }
 };
+
 export const getEventDetail = async () => {
   try {
     await dbConnect();
