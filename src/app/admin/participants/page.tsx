@@ -243,14 +243,11 @@ export default function AdminReportPage() {
   };
   const FullDownloadExcelData = async () => {
     try {
-      setDownloadLoading(true);
       const res = await FullDataForDownload();
       console.log(res);
       exportToExcel(JSON.parse(res.data!));
     } catch (error: any) {
       console.log(error);
-    } finally {
-      setDownloadLoading(false);
     }
   };
   return (
