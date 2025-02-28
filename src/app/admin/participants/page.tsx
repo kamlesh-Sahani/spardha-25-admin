@@ -103,6 +103,7 @@ export default function AdminReportPage() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [downloadLoading, setDownloadLoading] = useState<boolean>(false);
+  const [downloadLoadingAll, setDownloadLoadingAll] = useState<boolean>(false);
 
   // Event handler to open the image modal
   const openImageModal = (imageSrc: string) => {
@@ -243,11 +244,14 @@ export default function AdminReportPage() {
   };
   const FullDownloadExcelData = async () => {
     try {
+      setDownloadLoadingAll(true);
       const res = await FullDataForDownload();
       console.log(res);
       exportToExcelAll(JSON.parse(res.data!));
     } catch (error: any) {
       console.log(error);
+    } finally {
+      setDownloadLoadingAll(false);
     }
   };
   return (
@@ -266,7 +270,7 @@ export default function AdminReportPage() {
             onClick={FullDownloadExcelData}
             className="px-3 py-2 rounded bg-blue-500 font-semibold text-white border-none"
           >
-            All Data
+            {downloadLoadingAll ? "Downloading..." : "Download Data"}
           </button>
         </div>
       </div>
