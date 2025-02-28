@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Ensure this is a Client Component
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import Loader from "@/components/Loader";
-import { default as ReactSelect } from "react-select"; 
+import { default as ReactSelect } from "react-select"; // ✅ Correct aliasing
 import {
   DataForDownload,
   FullDataForDownload,
@@ -91,20 +91,27 @@ export default function AdminReportPage() {
     email: string;
   }>();
 
+  // New state for handling approval/rejection reason
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [statusReason, setStatusReason] = useState("");
   const [currentStatus, setCurrentStatus] = useState<
     "approved" | "rejected" | "delete"
   >();
   const [currentTeamId, setCurrentTeamId] = useState<string>();
+
+  // Add new state for large image view
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [downloadLoading, setDownloadLoading] = useState<boolean>(false);
   const [downloadLoadingAll, setDownloadLoadingAll] = useState<boolean>(false);
+
+  // Event handler to open the image modal
   const openImageModal = (imageSrc: string) => {
     setSelectedImage(imageSrc);
     setIsImageModalOpen(true);
   };
+
+  // Event handler to close the image modal
   const closeImageModal = () => {
     setIsImageModalOpen(false);
     setSelectedImage(null);
@@ -132,6 +139,8 @@ export default function AdminReportPage() {
       }
       return 0;
     });
+
+  // Update team status
   const updateTeamStatus = async () => {
     try {
       setStatusLoading(true);
@@ -149,7 +158,7 @@ export default function AdminReportPage() {
       if (res.success) {
         toast.success(res.message || "Successfully updated");
         setUiUpdate((prev) => !prev);
-        setIsStatusDialogOpen(false);
+        setIsStatusDialogOpen(false); // Close the dialog after submission
       } else {
         toast.error(res.message);
       }
@@ -160,6 +169,8 @@ export default function AdminReportPage() {
       setStatusLoading(false);
     }
   };
+
+  // Open status dialog for approve/reject
   const openStatusDialog = (
     teamId: string,
     status: "approved" | "rejected" | "delete"
@@ -168,14 +179,19 @@ export default function AdminReportPage() {
     setCurrentStatus(status);
     setIsStatusDialogOpen(true);
   };
+
+  // Open player details modal
   const openPlayerModal = (team: Team) => {
     setSelectedTeam(team);
     setIsPlayerModalOpen(true);
   };
+
+  // Open transaction screenshot modal
   const openTransactionModal = (team: Team) => {
     setSelectedTeam(team);
     setIsTransactionModalOpen(true);
   };
+
   useEffect(() => {
     (async function () {
       setLoading(true);
@@ -190,6 +206,7 @@ export default function AdminReportPage() {
       }
     })();
   }, [uiUpdate]);
+
   useEffect(() => {
     (async function () {
       try {
@@ -229,10 +246,12 @@ export default function AdminReportPage() {
     try {
       setDownloadLoadingAll(true);
       const res = await FullDataForDownload();
+      console.log(res);
       exportToExcelAll(JSON.parse(res.data!));
     } catch (error: any) {
       console.log(error);
-    } finally {
+    }
+    finally{
       setDownloadLoadingAll(false);
     }
   };

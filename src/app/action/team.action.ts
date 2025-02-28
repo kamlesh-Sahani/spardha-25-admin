@@ -9,24 +9,31 @@ import { LRUCache } from "lru-cache";
 import { headers } from "next/headers";
 import { verifyToken } from "@/utils/captcha.util";
 import isAdmin from "@/utils/isAdmin.util";
+
+// Configure the LRU cache (Max 10 requests per IP in 1 hour)
 const rateLimitCache = new LRUCache({
-  max: 500,
-  ttl: 1000 * 60 * 30,
+  max: 500, // Store up to 500 different IPs
+  ttl: 1000 * 60 * 30, // 30 minute in milliseconds
 });
+// Function to get IP address
 const getIP = async () => {
   const headerList = await headers();
   const forwardedFor = headerList.get("x-forwarded-for");
-  return forwardedFor ? forwardedFor.split(",")[0] : "unknown";
+  return forwardedFor ? forwardedFor.split(",")[0] : "unknown"; // Use first IP from forwarded list
 };
 
 export const registerAction = async (teamData: any) => {
   try {
     await dbConnect();
+    // Get the client's IP
     const ip = await getIP();
     if (ip === "unknown") {
       return { success: false, message: "Unable to identify IP address." };
     }
+
+    // Check rate limit
     const requestCount = Number(rateLimitCache.get(ip)) || 0;
+
     if (requestCount >= 5) {
       return {
         success: false,
@@ -76,6 +83,9 @@ export const registerAction = async (teamData: any) => {
         captainEmail = players[i].email;
       }
     }
+
+    // Check if the team is already registered
+
     const isExist = await TeamModel.findOne({
       $or: [
         { $and: [{ event }, { "players.email": captainEmail }] },
@@ -98,6 +108,8 @@ export const registerAction = async (teamData: any) => {
     }
 
     const transactionSsUrl = await uploadImage(transactionImage, teamID);
+
+    // Dynamically upload each player's ID card images
     const playerIdCardUrls = await Promise.all(
       players?.map((player: any) => uploadImage(player.playerIdCard, teamID))
     );
@@ -108,7 +120,10 @@ export const registerAction = async (teamData: any) => {
         message: "Failed to upload image try again..",
       };
     }
+    // Generate password for the team
     const password = generatePassword(teamID);
+
+    // Process the players and add their data
     const playersData = players.map((player: any, index: number) => ({
       ...player,
       playerIdCard: playerIdCardUrls[index] || "",
@@ -130,6 +145,7 @@ export const registerAction = async (teamData: any) => {
         message: "failed to register try again",
       };
     }
+
     const teamDetailLink = `${process.env.BASE_URL}/profile?pass=${password}`;
     const collegeMail = process.env.EMAIL_USER;
     const htmlTemplate = `
@@ -429,8 +445,10 @@ export const getTeamByEvent = async (eventName: string) => {
       };
     }
     const collegeData = new Map<string, number>();
+    // Iterate through teams to populate events and collegeData
     for (let i = 0; i < teams.length; i++) {
       const team = teams[i];
+      // Update college registration count
       if (collegeData.has(team.college)) {
         const registrations = collegeData.get(team.college)! + 1;
         collegeData.set(team.college, registrations);
@@ -438,6 +456,8 @@ export const getTeamByEvent = async (eventName: string) => {
         collegeData.set(team.college, 1);
       }
     }
+
+    // Convert the Map to an array of objects for easier use
     const collegeDataArray = Array.from(collegeData).map(
       ([name, registrations]) => ({
         name,
@@ -589,24 +609,30 @@ export const FullDataForDownload = async () => {
   try {
     await dbConnect();
     const teams = await TeamModel.find({ isDeleted: false });
-    const formattedDataArr: any[] = [];
+    const formattedDataArr = [];
     for (const team of teams) {
-      if (team.players && team.players.length > 0) {
-        for (const player of team.players) {
-          formattedDataArr.push({
-            teamID: team.teamID,
-            eventName: team.event,
-            college: team.college,
-            status: team.status,
-            transactionId: team.transactionId,
-            amount: team.amount,
-            playerName: player.name,
-            enrollment: player.enrollment,
-            phone: player.mobile,
-            isCaptain: player.isCaptain ? "Yes" : "No",
-          });
-        }
+      const teamEntry = {
+        teamID: team.teamID,
+        eventName: team.event,
+        college: team.college,
+        status: team.status,
+        transactionId: team.transactionId,
+        amount: team.amount,
+        playerNames: [] as string[],
+        enrollments: [] as string[],
+        phones: [] as string[],
+        isCaptains: [] as boolean[],
+      };
+
+      // Add player details to arrays
+      for (const player of team.players) {
+        teamEntry.playerNames.push(player.name);
+        teamEntry.enrollments.push(player.enrollment);
+        teamEntry.phones.push(player.mobile);
+        teamEntry.isCaptains.push(!!player.isCaptain);
       }
+
+      formattedDataArr.push(teamEntry);
     }
     return {
       message: "Data successfully retrieved",
@@ -614,7 +640,6 @@ export const FullDataForDownload = async () => {
       data: JSON.stringify(formattedDataArr),
     };
   } catch (error: any) {
-    console.error("Error fetching data:", error);
     return {
       success: false,
       message: error.message || "Internal error",
@@ -626,6 +651,8 @@ export const getEventDetail = async () => {
   try {
     await dbConnect();
     const teams = await TeamModel.find({ isDeleted: false });
+
+    // Grouping data by event
     const eventDetails: Record<
       string,
       {
@@ -643,11 +670,12 @@ export const getEventDetail = async () => {
         eventDetails[team.event] = {
           event: team.event,
           registration: 0,
-          totalCollege: new Set<string>(),
+          totalCollege: new Set<string>(), // Using Set to avoid duplicate colleges
           dbit: 0,
           btts: 0,
         };
       }
+
       eventDetails[team.event].registration += 1;
       eventDetails[team.event].totalCollege.add(team.college);
       if (team.college === "Don Bosco Institute of Technology, New Delhi") {
@@ -658,6 +686,7 @@ export const getEventDetail = async () => {
       }
     }
 
+    // Convert Set to Array
     let result = Object.values(eventDetails).map((event) => ({
       event: event.event,
       registration: event.registration,
@@ -666,7 +695,10 @@ export const getEventDetail = async () => {
       btts: event.btts,
       other: event.registration - (event.dbit + event.btts),
     }));
+
+    // Sort the result by event name
     result = result.sort((a, b) => a.event.localeCompare(b.event));
+
     return {
       success: true,
       data: JSON.stringify(result),
