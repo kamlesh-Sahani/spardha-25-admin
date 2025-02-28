@@ -258,18 +258,20 @@ export default function AdminReportPage() {
       <div className="flex items-center justify-between flex-wrap">
         <h1 className="text-2xl font-bold mb-6">Team Registrations Report</h1>
 
-        <button
-          onClick={DownloadExcelData}
-          className="px-3 py-2 rounded bg-blue-500 font-semibold text-white border-none"
-        >
-          {downloadLoading ? "Downloading..." : "Download Data"}
-        </button>
-        <button
-          onClick={FullDownloadExcelData}
-          className="px-3 py-2 rounded bg-blue-500 font-semibold text-white border-none"
-        >
-          {downloadLoading ? "Downloading..." : "Download Data"}
-        </button>
+        <div className="flex gap-4 justify-center items-center">
+          <button
+            onClick={DownloadExcelData}
+            className="px-3 py-2 rounded bg-blue-500 font-semibold text-white border-none"
+          >
+            {downloadLoading ? "Downloading..." : "Download Data"}
+          </button>
+          <button
+            onClick={FullDownloadExcelData}
+            className="px-3 py-2 rounded bg-blue-500 font-semibold text-white border-none"
+          >
+            All Data
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

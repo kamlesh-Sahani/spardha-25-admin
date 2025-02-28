@@ -610,7 +610,7 @@ export const FullDataForDownload = async () => {
     await dbConnect();
     const teams = await TeamModel.find({ isDeleted: false });
 
-    const formattedDataArr = [] as any;
+    const formattedDataArr = [];
     for (const team of teams) {
       for (const player of team.players) {
         formattedDataArr.push({
@@ -618,12 +618,10 @@ export const FullDataForDownload = async () => {
           eventName: team.event,
           college: team.college,
           playerName: player.name,
-          enrollment: player.enrollment,
-          gender: player.gender,
-          email: player.email,
-          phone: player.mobile,
-          isCaptain: player.isCaptain || false, // Ensures a boolean value
+          enrollment: player.enrollment, // Added enrollment
+          isCaptain: player.isCaptain, // Added isCaptain status
           status: team.status,
+          phone: player.mobile,
           transactionId: team.transactionId,
           amount: team.amount,
         });
@@ -642,7 +640,6 @@ export const FullDataForDownload = async () => {
     };
   }
 };
-
 export const getEventDetail = async () => {
   try {
     await dbConnect();
