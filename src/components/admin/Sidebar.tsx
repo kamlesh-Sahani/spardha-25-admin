@@ -10,12 +10,16 @@ import {
   School,
   Key,
   Gamepad,
-} from "lucide-react";
+} from "lucide-react"
+import { GiPodiumWinner } from "react-icons/gi";
+;
 import { adminLogout } from "@/app/action/admin.action";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { adminProfile } from "@/app/action/admin.action";
 import { getCaptchaToken } from "@/utils/captcha.util";
+import { BsDatabaseFillAdd } from "react-icons/bs";
+
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -60,14 +64,14 @@ export default function AdminSidebar() {
     (async function () {
       try {
         setLoading(true);
-        const captchaToken = await  getCaptchaToken()
+        const captchaToken = await getCaptchaToken();
         const res = await adminProfile(captchaToken!);
         if (res.success) {
           setAdmin(JSON.parse(res.admin!));
         } else {
           setAdmin(null);
-         await adminLogout();
-         router.push("/login");
+          await adminLogout();
+          router.push("/login");
         }
       } catch (error: any) {
         console.log(error);
@@ -86,7 +90,7 @@ export default function AdminSidebar() {
     } else {
       setShowSidebar(true);
     }
-    if (!admin) return;  
+    if (!admin) return;
     if (!admin.active) {
       router.push("/login");
     } else {
@@ -136,7 +140,7 @@ export default function AdminSidebar() {
             </button>
           </div>
           <div className="flex flex-col gap-2 flex-[3]">
-            <Link href="/admin/dashboard" >
+            <Link href="/admin/dashboard">
               <div
                 className={`flex gap-3 h-[50px] rounded-md items-center cursor-pointer hover:bg-[#3B82F6] hover:text-white pl-4 text-[20px] text-gray-200/80 ${
                   pathname === "/admin/dashboard" ? "bg-[#3B82F6]" : ""
@@ -168,6 +172,26 @@ export default function AdminSidebar() {
                   >
                     <ShieldCheck />
                     <p>Attendance</p>
+                  </div>
+                </Link>
+                <Link href="/admin/result">
+                  <div
+                    className={`flex gap-3 h-[50px] rounded-md items-center cursor-pointer hover:bg-[#3B82F6] hover:text-white pl-4 text-[20px] text-gray-200/80 ${
+                      pathname === "/admin/result" ? "bg-[#3B82F6]" : ""
+                    }`}
+                  >
+                    <BsDatabaseFillAdd />
+                    <p>Add Points</p>
+                  </div>
+                </Link>
+                <Link href="/admin/display-result">
+                  <div
+                    className={`flex gap-3 h-[50px] rounded-md items-center cursor-pointer hover:bg-[#3B82F6] hover:text-white pl-4 text-[20px] text-gray-200/80 ${
+                      pathname === "/admin/display-result" ? "bg-[#3B82F6]" : ""
+                    }`}
+                  >
+                    <GiPodiumWinner />
+                    <p>Leaderboard</p>
                   </div>
                 </Link>
                 <Link href="/admin/event">
