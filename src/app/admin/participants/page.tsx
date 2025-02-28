@@ -1,12 +1,10 @@
 "use client"; // Ensure this is a Client Component
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {CheckCircle,XCircle,Trash2} from "lucide-react"
+import { CheckCircle, XCircle, Trash2 } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
-
 import {
   Select,
   SelectContent,
@@ -31,7 +29,11 @@ import {
 } from "@/components/ui/dialog";
 import Loader from "@/components/Loader";
 import { default as ReactSelect } from "react-select"; // ✅ Correct aliasing
-import { DataForDownload, deleteTeam } from "@/app/action/team.action";
+import {
+  DataForDownload,
+  FullDataForDownload,
+  deleteTeam,
+} from "@/app/action/team.action";
 import { adminProfile } from "@/app/action/admin.action";
 import { exportToExcel } from "@/utils/exportToExcel.util";
 import { getCaptchaToken } from "@/utils/captcha.util";
@@ -44,7 +46,7 @@ interface Player {
   email: string;
   playerIdCard: string;
   isCaptain: boolean;
-  enrollment:string;
+  enrollment: string;
 }
 
 interface Team {
@@ -64,7 +66,7 @@ interface Filters {
   event: string;
   college: string;
   status: string;
-  collegeOrder:string;
+  collegeOrder: string;
 }
 
 export default function AdminReportPage() {
@@ -73,7 +75,7 @@ export default function AdminReportPage() {
     event: "",
     college: "",
     status: "",
-    collegeOrder:""
+    collegeOrder: "",
   });
   const [selectedTeam, setSelectedTeam] = useState<Team>();
   const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
@@ -82,77 +84,75 @@ export default function AdminReportPage() {
   const [uiUpdate, setUiUpdate] = useState<boolean>(false);
   const [collegeData, setCollegeData] = useState<string[]>();
   const [eventData, setEventData] = useState<string[]>();
-  const [statusLoading,setStatusLoading]= useState<boolean>(false);
-  const [admin,setAdmin] = useState<{role:"admin" | "user",active:boolean,email:string}>()
-
+  const [statusLoading, setStatusLoading] = useState<boolean>(false);
+  const [admin, setAdmin] = useState<{
+    role: "admin" | "user";
+    active: boolean;
+    email: string;
+  }>();
 
   // New state for handling approval/rejection reason
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
   const [statusReason, setStatusReason] = useState("");
-  const [currentStatus, setCurrentStatus] = useState<"approved" | "rejected" | "delete">();
+  const [currentStatus, setCurrentStatus] = useState<
+    "approved" | "rejected" | "delete"
+  >();
   const [currentTeamId, setCurrentTeamId] = useState<string>();
 
   // Add new state for large image view
-const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-const [selectedImage, setSelectedImage] = useState<string | null>(null);
-const [downloadLoading,setDownloadLoading]=useState<boolean>(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [downloadLoading, setDownloadLoading] = useState<boolean>(false);
 
-// Event handler to open the image modal
-const openImageModal = (imageSrc: string) => {
-  setSelectedImage(imageSrc);
-  setIsImageModalOpen(true);
-};
+  // Event handler to open the image modal
+  const openImageModal = (imageSrc: string) => {
+    setSelectedImage(imageSrc);
+    setIsImageModalOpen(true);
+  };
 
-// Event handler to close the image modal
-const closeImageModal = () => {
-  setIsImageModalOpen(false);
-  setSelectedImage(null);
-};
-
-
+  // Event handler to close the image modal
+  const closeImageModal = () => {
+    setIsImageModalOpen(false);
+    setSelectedImage(null);
+  };
 
   const filteredTeams = (teams || [])
-  .filter((team) => {
-    return (
-      (filters.event && filters.event !== "all"
-        ? team.event.toLowerCase().includes(filters.event.toLowerCase())
-        : true) &&
-      (filters.college && filters.college !== "all"
-        ? team.college.toLowerCase().includes(filters.college.toLowerCase())
-        : true) &&
-      (filters.status && filters.status !== "all"
-        ? team.status === filters.status
-        : true)
-    );
-  })
-  .sort((a, b) => {
-    if (filters.collegeOrder === "asc") {
-      return a.college.localeCompare(b.college);
-    } else if (filters.collegeOrder === "desc") {
-      return b.college.localeCompare(a.college);
-    }
-    return 0;
-  });
-
-
-
-
-
+    .filter((team) => {
+      return (
+        (filters.event && filters.event !== "all"
+          ? team.event.toLowerCase().includes(filters.event.toLowerCase())
+          : true) &&
+        (filters.college && filters.college !== "all"
+          ? team.college.toLowerCase().includes(filters.college.toLowerCase())
+          : true) &&
+        (filters.status && filters.status !== "all"
+          ? team.status === filters.status
+          : true)
+      );
+    })
+    .sort((a, b) => {
+      if (filters.collegeOrder === "asc") {
+        return a.college.localeCompare(b.college);
+      } else if (filters.collegeOrder === "desc") {
+        return b.college.localeCompare(a.college);
+      }
+      return 0;
+    });
 
   // Update team status
   const updateTeamStatus = async () => {
     try {
       setStatusLoading(true);
       let res;
-      if(currentStatus==="delete"){
-        res = await deleteTeam(currentTeamId!)
-      }else{
+      if (currentStatus === "delete") {
+        res = await deleteTeam(currentTeamId!);
+      } else {
         const { data } = await axios.post("/api/report/status", {
           _id: currentTeamId,
           status: currentStatus,
           reason: statusReason,
         });
-        res=data;
+        res = data;
       }
       if (res.success) {
         toast.success(res.message || "Successfully updated");
@@ -161,11 +161,10 @@ const closeImageModal = () => {
       } else {
         toast.error(res.message);
       }
-     
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Something went wrong");
       console.log(error);
-    }finally{
+    } finally {
       setStatusLoading(false);
     }
   };
@@ -192,15 +191,13 @@ const closeImageModal = () => {
     setIsTransactionModalOpen(true);
   };
 
-
   useEffect(() => {
     (async function () {
       setLoading(true);
       try {
         const { data } = await axios.get("/api/report/all");
-      
+
         setTeams(data.teams);
-       
       } catch (error) {
         console.log(error);
       } finally {
@@ -208,51 +205,73 @@ const closeImageModal = () => {
       }
     })();
   }, [uiUpdate]);
-  
+
   useEffect(() => {
     (async function () {
       try {
         const { data } = await axios.get("/api/report/data");
         setCollegeData(data.data.colleges);
         setEventData(data.data.events);
-        
       } catch (error) {
         console.log(error);
       }
     })();
   }, []);
 
-  useEffect(()=>{
-    (async function(){
-      try{
-        const captchaToken = await  getCaptchaToken()
+  useEffect(() => {
+    (async function () {
+      try {
+        const captchaToken = await getCaptchaToken();
         const res = await adminProfile(captchaToken!);
         setAdmin(JSON.parse(res.admin!));
-      }catch(error:any){
-        console.log(error)
+      } catch (error: any) {
+        console.log(error);
       }
-    })()
-  },[])
-  const DownloadExcelData = async()=>{
-    try{
+    })();
+  }, []);
+  const DownloadExcelData = async () => {
+    try {
       setDownloadLoading(true);
       const res = await DataForDownload();
-      console.log(res)
+      console.log(res);
       exportToExcel(JSON.parse(res.data!));
-    }catch(error:any){
+    } catch (error: any) {
       console.log(error);
-    }finally{
+    } finally {
       setDownloadLoading(false);
     }
-  }
+  };
+  const FullDownloadExcelData = async () => {
+    try {
+      setDownloadLoading(true);
+      const res = await FullDataForDownload();
+      console.log(res);
+      exportToExcel(JSON.parse(res.data!));
+    } catch (error: any) {
+      console.log(error);
+    } finally {
+      setDownloadLoading(false);
+    }
+  };
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="flex items-center justify-between flex-wrap">
-      <h1 className="text-2xl font-bold mb-6">Team Registrations Report</h1>
+        <h1 className="text-2xl font-bold mb-6">Team Registrations Report</h1>
 
-        <button onClick={DownloadExcelData} className="px-3 py-2 rounded bg-blue-500 font-semibold text-white border-none">{downloadLoading? "Downloading...":"Download Data"}</button>
+        <button
+          onClick={DownloadExcelData}
+          className="px-3 py-2 rounded bg-blue-500 font-semibold text-white border-none"
+        >
+          {downloadLoading ? "Downloading..." : "Download Data"}
+        </button>
+        <button
+          onClick={FullDownloadExcelData}
+          className="px-3 py-2 rounded bg-blue-500 font-semibold text-white border-none"
+        >
+          {downloadLoading ? "Downloading..." : "Download Data"}
+        </button>
       </div>
-     
+
       {/* Filters */}
       <div className="mb-6 flex flex-wrap gap-4">
         {collegeData && (
@@ -320,23 +339,21 @@ const closeImageModal = () => {
           </SelectContent>
         </Select>
 
-
         <Select
           value={filters.collegeOrder}
-          onValueChange={(value) => setFilters({ ...filters, collegeOrder: value })}
+          onValueChange={(value) =>
+            setFilters({ ...filters, collegeOrder: value })
+          }
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort by college" />
           </SelectTrigger>
           <SelectContent>
-          <SelectItem value="all">Default</SelectItem>
+            <SelectItem value="all">Default</SelectItem>
             <SelectItem value="asc">College (A → Z)</SelectItem>
             <SelectItem value="dec">College (Z → A)</SelectItem>
           </SelectContent>
         </Select>
-
-
-
       </div>
 
       {/* Table */}
@@ -350,7 +367,7 @@ const closeImageModal = () => {
                 <TableRow>
                   <TableHead>Team ID</TableHead>
                   <TableHead>Date</TableHead>
-                
+
                   <TableHead>Event</TableHead>
                   <TableHead>College</TableHead>
                   <TableHead>Status</TableHead>
@@ -364,8 +381,14 @@ const closeImageModal = () => {
                       <TableCell>{team.teamID}</TableCell>
                       <TableCell>
                         {team?.createdAt
-                          ?  String(new Date(team.createdAt).toLocaleDateString()) +"  (" + 
-                          String(new Date(team.createdAt).toLocaleTimeString())+ ")"
+                          ? String(
+                              new Date(team.createdAt).toLocaleDateString()
+                            ) +
+                            "  (" +
+                            String(
+                              new Date(team.createdAt).toLocaleTimeString()
+                            ) +
+                            ")"
                           : "N/A"}
                       </TableCell>
                       <TableCell>{team.event}</TableCell>
@@ -380,7 +403,11 @@ const closeImageModal = () => {
                               : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
-                          {team.status==="approved"?"Approved":team.status==="pending"?"Pending":"Rejected"}
+                          {team.status === "approved"
+                            ? "Approved"
+                            : team.status === "pending"
+                            ? "Pending"
+                            : "Rejected"}
                         </span>
                       </TableCell>
                       <TableCell className="flex gap-2">
@@ -396,31 +423,34 @@ const closeImageModal = () => {
                         >
                           View Payment
                         </Button>
-                        {
-                        admin && admin.active && admin?.role==="admin" && <>
-                          <Button
-                          onClick={() => openStatusDialog(team._id, "approved")}
-                          className="bg-green-800"
-                          
-                        >
-                          <CheckCircle />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={() => openStatusDialog(team._id, "rejected")}
-                        >
-                          <XCircle />
-                        </Button>
+                        {admin && admin.active && admin?.role === "admin" && (
+                          <>
+                            <Button
+                              onClick={() =>
+                                openStatusDialog(team._id, "approved")
+                              }
+                              className="bg-green-800"
+                            >
+                              <CheckCircle />
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              onClick={() =>
+                                openStatusDialog(team._id, "rejected")
+                              }
+                            >
+                              <XCircle />
+                            </Button>
 
-
-                        <Button
-                          onClick={() => openStatusDialog(team._id, "delete")}
-                        >
-                         <Trash2 />
-                        </Button>
-                        </>
-                        }
-                      
+                            <Button
+                              onClick={() =>
+                                openStatusDialog(team._id, "delete")
+                              }
+                            >
+                              <Trash2 />
+                            </Button>
+                          </>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -435,38 +465,38 @@ const closeImageModal = () => {
         <DialogContent className="max-w-[400px] max-sm:max-w-[90vw] rounded z-[110]">
           <DialogHeader>
             <DialogTitle>
-              {
-                currentStatus ==="delete" ? "Are you sure to want to delete ?":<>
-                 Provide a Reason for{" "}
-              <span
-                className={`${
-                  currentStatus == "rejected"
-                    ? "text-red-600"
-                    : "text-green-700"
-                }`}
-              >
-                {currentStatus}
-              </span>
-                 </>
-              }
-             
+              {currentStatus === "delete" ? (
+                "Are you sure to want to delete ?"
+              ) : (
+                <>
+                  Provide a Reason for{" "}
+                  <span
+                    className={`${
+                      currentStatus == "rejected"
+                        ? "text-red-600"
+                        : "text-green-700"
+                    }`}
+                  >
+                    {currentStatus}
+                  </span>
+                </>
+              )}
             </DialogTitle>
-            {
-              currentStatus !=="delete" && <DialogDescription>
-              Please provide a reason for the {currentStatus} status.
-            </DialogDescription>
-            }
-          
+            {currentStatus !== "delete" && (
+              <DialogDescription>
+                Please provide a reason for the {currentStatus} status.
+              </DialogDescription>
+            )}
           </DialogHeader>
-          {
-            currentStatus!=="delete" && <Input
-            value={statusReason}
-            onChange={(e) => setStatusReason(e.target.value)}
-            placeholder={`Reason for ${currentStatus} optional`}
-            className="w-full mb-4"
-          />
-          }
-         
+          {currentStatus !== "delete" && (
+            <Input
+              value={statusReason}
+              onChange={(e) => setStatusReason(e.target.value)}
+              placeholder={`Reason for ${currentStatus} optional`}
+              className="w-full mb-4"
+            />
+          )}
+
           <div className="flex justify-end gap-2">
             <Button
               variant="outline"
@@ -474,28 +504,30 @@ const closeImageModal = () => {
             >
               Cancel
             </Button>
-            <Button onClick={updateTeamStatus}>{statusLoading ? "Updating...": "Submit"}</Button>
+            <Button onClick={updateTeamStatus}>
+              {statusLoading ? "Updating..." : "Submit"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-
       <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
-  <DialogContent className="max-w-[80vw] max-sm:max-w-[90vw] max-h-[85vh] overflow-auto rounded z-[110]">
-    <DialogHeader>
-      <DialogTitle>Large view</DialogTitle>
-    </DialogHeader>
-    <img
-      src={selectedImage || ""}
-      alt="Large View"
-      className="w-full h-[800px] object-contain rounded"
-    />
-    <div className="flex justify-end gap-2 mt-4">
-      <Button variant="outline" onClick={closeImageModal}>Close</Button>
-    </div>
-  </DialogContent>
-</Dialog>
-
+        <DialogContent className="max-w-[80vw] max-sm:max-w-[90vw] max-h-[85vh] overflow-auto rounded z-[110]">
+          <DialogHeader>
+            <DialogTitle>Large view</DialogTitle>
+          </DialogHeader>
+          <img
+            src={selectedImage || ""}
+            alt="Large View"
+            className="w-full h-[800px] object-contain rounded"
+          />
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={closeImageModal}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isPlayerModalOpen} onOpenChange={setIsPlayerModalOpen}>
         <DialogContent className="max-w-[70vw] max-sm:max-w-[80vw] max-h-[86vh] overflow-x-auto rounded z-[110]">
@@ -508,7 +540,7 @@ const closeImageModal = () => {
           <Table>
             <TableHeader>
               <TableRow>
-              <TableHead>ID</TableHead>
+                <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Gender</TableHead>
                 <TableHead>Mobile</TableHead>
@@ -520,19 +552,21 @@ const closeImageModal = () => {
             <TableBody>
               {selectedTeam?.players.map((player, index) => (
                 <TableRow key={index}>
-                  <TableCell>{index+1}</TableCell>
+                  <TableCell>{index + 1}</TableCell>
                   <TableCell>{player.name}</TableCell>
                   <TableCell>{player.gender}</TableCell>
                   <TableCell>{player.mobile}</TableCell>
-                  <TableCell>{player.enrollment ? player.enrollment : "-"}</TableCell>
+                  <TableCell>
+                    {player.enrollment ? player.enrollment : "-"}
+                  </TableCell>
                   <TableCell>{player.email}</TableCell>
-                 
+
                   <TableCell>{player.isCaptain ? "Yes" : "No"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <div  className="bg-[#a3a2a2] h-[2px] rounded w-full"> </div>
+          <div className="bg-[#a3a2a2] h-[2px] rounded w-full"> </div>
           <h1 className="font-semibold">Players Id Cards</h1>
           <div className="flex overflow-x-auto gap-5 ">
             {selectedTeam?.players.map((player, index) => (
@@ -556,7 +590,9 @@ const closeImageModal = () => {
       >
         <DialogContent className="max-w-[50vw] max-sm:max-w-[90vw] rounded z-[110]">
           <DialogHeader>
-            <DialogTitle>Transaction Screenshot ({selectedTeam?.teamID})</DialogTitle>
+            <DialogTitle>
+              Transaction Screenshot ({selectedTeam?.teamID})
+            </DialogTitle>
             <DialogDescription>
               Screenshot of the transaction for the team.
             </DialogDescription>

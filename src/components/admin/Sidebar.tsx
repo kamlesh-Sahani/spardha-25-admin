@@ -86,13 +86,10 @@ export default function AdminSidebar() {
     } else {
       setShowSidebar(true);
     }
-    if (!admin) return;  // Wait until admin is loaded
-
+    if (!admin) return;  
     if (!admin.active) {
-      // If admin is inactive, log them out
       router.push("/login");
     } else {
-      // If admin is active, check role-based redirection
       if (admin.role !== "admin") {
         if (pathname === "/admin/colleges" || pathname === "/admin/roles") {
           router.push("/admin/dashboard");
@@ -102,27 +99,21 @@ export default function AdminSidebar() {
   }, [pathname, admin]);
   return (
     <>
-      {/* Sidebar Toggle Button */}
       <div onClick={() => setShowSidebar(!showSidebar)}>
         {!showSidebar && (
           <RiMenu4Fill className="text-3xl bg-black h-[40px] w-[40px] p-2 rounded-full dark:text-gray-100 text-white cursor-pointer xl:hidden absolute top-[10px] left-5 z-[100]" />
         )}
       </div>
-
-      {/* Overlay when Sidebar is opened on small screens */}
       {showSidebar && (
         <div
           className="w-[50px] h-[50px] bg-black/30 fixed top-10 left-2 z-[99] xl:hidden"
           onClick={() => setShowSidebar(false)}
         ></div>
       )}
-
-      {/* Sidebar Content */}
       {showSidebar && (
         <div
           className={`bg-[#065B83] text-black xl:w-80 max-xl:w-[350px] fixed top-0 left-0 z-[100] flex flex-col xl:relative p-5 h-[100vh] max-xl:h-[100vh] `}
         >
-          {/* Sidebar Header */}
           <div className="flex gap-5 items-center justify-between mb-7">
             <div className="flex gap-5 items-center">
               <img
@@ -137,8 +128,6 @@ export default function AdminSidebar() {
                 <p className="text-white">Manage make easy</p>
               </div>
             </div>
-
-            {/* Sidebar Close Button */}
             <button
               className="xl:hidden text-gray-300"
               onClick={() => setShowSidebar(false)}
@@ -146,8 +135,6 @@ export default function AdminSidebar() {
               X
             </button>
           </div>
-
-          {/* Sidebar Navigation */}
           <div className="flex flex-col gap-2 flex-[3]">
             <Link href="/admin/dashboard" >
               <div

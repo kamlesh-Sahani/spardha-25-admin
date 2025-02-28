@@ -578,7 +578,7 @@ export const DataForDownload = async () => {
     const formattedDataArr = [] as any;
     for (const team of teams) {
       for (const player of team.players) {
-        if (player.isCaptain) {  
+        if (player.isCaptain) {
           formattedDataArr.push({
             teamID: team.teamID,
             playerName: player.name,
@@ -605,7 +605,43 @@ export const DataForDownload = async () => {
     };
   }
 };
+export const FullDataForDownload = async () => {
+  try {
+    await dbConnect();
+    const teams = await TeamModel.find({ isDeleted: false });
 
+    const formattedDataArr = [] as any;
+    for (const team of teams) {
+      for (const player of team.players) {
+        formattedDataArr.push({
+          teamID: team.teamID,
+          eventName: team.event,
+          college: team.college,
+          playerName: player.name,
+          enrollment: player.enrollment,
+          gender: player.gender,
+          email: player.email,
+          phone: player.mobile,
+          isCaptain: player.isCaptain || false, // Ensures a boolean value
+          status: team.status,
+          transactionId: team.transactionId,
+          amount: team.amount,
+        });
+      }
+    }
+
+    return {
+      message: "Data successfully retrieved",
+      success: true,
+      data: JSON.stringify(formattedDataArr),
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Internal error",
+    };
+  }
+};
 
 export const getEventDetail = async () => {
   try {
