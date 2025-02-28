@@ -578,10 +578,10 @@ export const DataForDownload = async () => {
     const formattedDataArr = [] as any;
     for (const team of teams) {
       for (const player of team.players) {
-        if (player.isCaptain) {  // Only include captain players
+        if (player.isCaptain) {  
           formattedDataArr.push({
             teamID: team.teamID,
-            playerName: player.name, // Only captain's name
+            playerName: player.name,
             status: team.status,
             eventName: team.event,
             phone: player.mobile,
