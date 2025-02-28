@@ -244,12 +244,48 @@ export default function AdminReportPage() {
   const FullDownloadExcelData = async () => {
     try {
       const res = await FullDataForDownload();
-      console.log(res);
-      exportToExcel(JSON.parse(res.data!));
+
+      // Ensure the parsed data matches the Team interface
+      const teams: Team[] = JSON.parse(res.data!);
+
+      // Properly formatted array for Excel export
+      let formattedData: Array<{
+        teamID: number;
+        eventName: string;
+        college: string;
+        status: string;
+        transactionId: string;
+        amount: number;
+        playerName: string;
+        enrollment: string;
+        phone: string;
+        isCaptain: string;
+      }> = [];
+
+      teams.forEach((team: Team) => {
+        team.players.forEach((player: Player) => {
+          formattedData.push({
+            teamID: team.teamID, // Shared for all players in the team
+            eventName: team.event, // Shared for all players in the team
+            college: team.college, // Shared for all players in the team
+            status: team.status, // Shared for all players in the team
+            transactionId: team.transactionId, // Shared for all players in the team
+            amount: team.amount, // Shared for all players in the team
+            playerName: player.name, // Unique per player
+            enrollment: player.enrollment, // Unique per player
+            phone: player.mobile, // Unique per player
+            isCaptain: player.isCaptain ? "Yes" : "No", // Unique per player
+          });
+        });
+      });
+
+      // Export formatted data to Excel
+      exportToExcel(formattedData);
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
     }
   };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="flex items-center justify-between flex-wrap">
