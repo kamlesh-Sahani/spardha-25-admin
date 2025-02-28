@@ -9,17 +9,16 @@ import { headers } from "next/headers";
 import { verifyToken } from "@/utils/captcha.util";
 import isAdmin from "@/utils/isAdmin.util";
 
-// Configure the LRU cache (Max 10 requests per IP in 1 hour)
-const rateLimitCache = new LRUCache({
-  max: 500, // Store up to 500 different IPs
-  ttl: 1000 * 60 * 30, // 30 minute in milliseconds
-});
-// Function to get IP address
-const getIP = async () => {
-  const headerList = await headers();
-  const forwardedFor = headerList.get("x-forwarded-for");
-  return forwardedFor ? forwardedFor.split(",")[0] : "unknown"; // Use first IP from forwarded list
-};
+// const rateLimitCache = new LRUCache({
+//   max: 500, // Store up to 500 different IPs
+//   ttl: 1000 * 60 * 30, // 30 minute in milliseconds
+// });
+// // Function to get IP address
+// const getIP = async () => {
+//   const headerList = await headers();
+//   const forwardedFor = headerList.get("x-forwarded-for");
+//   return forwardedFor ? forwardedFor.split(",")[0] : "unknown"; // Use first IP from forwarded list
+// };
 
 export const adminLogin = async (
   password: string,
@@ -38,28 +37,28 @@ export const adminLogin = async (
       };
     }
     // Get the client's IP
-    const ip = await getIP();
-    if (ip === "unknown") {
-      return { success: false, message: "Unable to identify IP address." };
-    }
-    // Check rate limit
-    const requestCount = Number(rateLimitCache.get(ip)) || 0;
+    // const ip = await getIP();
+    // if (ip === "unknown") {
+    //   return { success: false, message: "Unable to identify IP address." };
+    // }
+    // // Check rate limit
+    // const requestCount = Number(rateLimitCache.get(ip)) || 0;
 
-    if (requestCount >= 5) {
-      return {
-        success: false,
-        message: "Too many requests, please try again later.",
-      };
-    }
-    rateLimitCache.set(ip, requestCount + 1);
-    const captchaData = await verifyToken(captchaToken);
+    // if (requestCount >= 5) {
+    //   return {
+    //     success: false,
+    //     message: "Too many requests, please try again later.",
+    //   };
+    // }
+    // rateLimitCache.set(ip, requestCount + 1);
+    // const captchaData = await verifyToken(captchaToken);
 
-    if (!captchaData.success) {
-      return {
-        success: false,
-        message: captchaData.error_codes || "captcha failed",
-      };
-    }
+    // if (!captchaData.success) {
+    //   return {
+    //     success: false,
+    //     message: captchaData.error_codes || "captcha failed",
+    //   };
+    // }
     // Find admin by email
     const admin = await adminModel.findOne({ email }).select("+password");
     if (!admin) {
