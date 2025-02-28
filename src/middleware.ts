@@ -5,13 +5,13 @@ export async function middleware(request: NextRequest) {
   const cookieStore = await cookies();
   const token = cookieStore.get("world-token")?.value;
   const protectedRoutes = ["/admin", "/api/report"];
-  // if (
-  //   protectedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))
-  // ) {
-  //   if (!token) {
-  //     return NextResponse.redirect(new URL("/login", request.url));
-  //   }
-  // }
+  if (
+    protectedRoutes.some((route) => request.nextUrl.pathname.startsWith(route))
+  ) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+  }
   return NextResponse.next();
 }
 export const config = {
